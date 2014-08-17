@@ -158,19 +158,23 @@ hist(steps_per_day)</code></pre>
 <pre class="r"><code>activ_monit_data_no_na$weekend &lt;- 
     as.factor(weekdays(as.Date(activ_monit_data_no_na$date)) %in% c(&quot;Saturday&quot;, &quot;Sunday&quot;))</code></pre>
 <p>Calculating daily activity for weekdays and weekends and creating plots:</p>
-<pre class="r"><code>daily_activity &lt;- with(activ_monit_data_no_na, 
+<pre class="r"><code># calculating mean number of steps per interval grouping by weekend/weekday
+daily_activity &lt;- with(activ_monit_data_no_na, 
                        tapply(steps, list(interval, weekend), mean, na.rm = T))
 daily_activity &lt;- as.data.frame(daily_activity)
+# creating tidy data frame with columns: interval, weekend (true of false), value
 new_daily_activity &lt;- data.frame(interval=row.names(daily_activity), 
-                                 value=daily_activity[,&quot;FALSE&quot;], 
-                                 weekend=&quot;Weekday&quot;)
+                                 weekend=&quot;Weekday&quot;,
+                                 value=daily_activity[,&quot;FALSE&quot;])
 new_daily_activity &lt;- rbind(new_daily_activity, 
                             data.frame(interval=row.names(daily_activity), 
-                                       value=daily_activity[,&quot;TRUE&quot;], 
-                                       weekend=&quot;Weekend&quot;))
+                                       weekend=&quot;Weekend&quot;,
+                                       value=daily_activity[,&quot;TRUE&quot;]))
 daily_activity &lt;- new_daily_activity
+# converting interval to integer to use in plotting
 daily_activity$interval &lt;- as.integer(as.character(daily_activity$interval))
 
+# using ggplot2 for plotting
 library(ggplot2)
 ggplot(daily_activity, aes(interval, value)) + 
     facet_grid(weekend ~ .) + 

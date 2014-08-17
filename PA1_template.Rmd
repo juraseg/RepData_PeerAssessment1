@@ -161,19 +161,23 @@ Calculating daily activity for weekdays and weekends and creating plots:
 
 ```{r echo=TRUE}
 
+# calculating mean number of steps per interval grouping by weekend/weekday
 daily_activity <- with(activ_monit_data_no_na, 
                        tapply(steps, list(interval, weekend), mean, na.rm = T))
 daily_activity <- as.data.frame(daily_activity)
+# creating tidy data frame with columns: interval, weekend (true of false), value
 new_daily_activity <- data.frame(interval=row.names(daily_activity), 
-                                 value=daily_activity[,"FALSE"], 
-                                 weekend="Weekday")
+                                 weekend="Weekday",
+                                 value=daily_activity[,"FALSE"])
 new_daily_activity <- rbind(new_daily_activity, 
                             data.frame(interval=row.names(daily_activity), 
-                                       value=daily_activity[,"TRUE"], 
-                                       weekend="Weekend"))
+                                       weekend="Weekend",
+                                       value=daily_activity[,"TRUE"]))
 daily_activity <- new_daily_activity
+# converting interval to integer to use in plotting
 daily_activity$interval <- as.integer(as.character(daily_activity$interval))
 
+# using ggplot2 for plotting
 library(ggplot2)
 ggplot(daily_activity, aes(interval, value)) + 
     facet_grid(weekend ~ .) + 
