@@ -17,7 +17,10 @@ First calculating sum of steps per day
 
 
 ```r
-steps_per_day <- tapply(activ_monit_data$steps, activ_monit_data$date, sum, na.rm = T)
+steps_per_day <- tapply(activ_monit_data$steps, 
+                        activ_monit_data$date, 
+                        sum, 
+                        na.rm = T)
 hist(steps_per_day)
 ```
 
@@ -73,7 +76,10 @@ Average number of steps for each 5-minute interval:
 
 
 ```r
-daily_activity = tapply(activ_monit_data$steps, activ_monit_data$interval, mean, na.rm = T)
+daily_activity = tapply(activ_monit_data$steps, 
+                        activ_monit_data$interval, 
+                        mean, 
+                        na.rm = T)
 
 plot(x=names(daily_activity), 
      y=daily_activity, 
@@ -81,7 +87,9 @@ plot(x=names(daily_activity),
      xlab="Time", 
      ylab="Number of steps", 
      xaxt="n")
-axis(1, labels=c('0:00', '5:00', '10:00', '15:00', '20:00'), at=c(0, 500, 1000, 1500, 2000))
+axis(1, 
+     labels=c('0:00', '5:00', '10:00', '15:00', '20:00'), 
+     at=c(0, 500, 1000, 1500, 2000))
 ```
 
 ![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7.png) 
@@ -125,7 +133,9 @@ We need to devise a strategy to fill in this values. One possible solution is to
 
 
 ```r
-temp = tapply(is.na(activ_monit_data$steps), activ_monit_data$date, function (x) {sum(x) / length(x) })
+temp = tapply(is.na(activ_monit_data$steps), 
+              activ_monit_data$date, 
+              function (x) {sum(x) / length(x) })
 plot(temp, type="l")
 ```
 
@@ -137,7 +147,10 @@ As NA values are evenly divided across intervals we can use interval mean or med
 
 
 ```r
-median_per_interval = tapply(activ_monit_data$steps, activ_monit_data$interval, median, na.rm=T)
+median_per_interval = tapply(activ_monit_data$steps, 
+                             activ_monit_data$interval, 
+                             median, 
+                             na.rm=T)
 length(median_per_interval[median_per_interval > 0])
 ```
 
@@ -150,15 +163,22 @@ Looks like the data highly scewed, so most of the medians is 0. Seems like mean 
 
 ```r
 activ_monit_data_no_na <- activ_monit_data
-mean_per_interval = tapply(activ_monit_data$steps, activ_monit_data$interval, mean, na.rm=T)
-activ_monit_data_no_na$steps[is.na(activ_monit_data_no_na$steps)] <- mean_per_interval[activ_monit_data_no_na$interval[is.na(activ_monit_data_no_na$steps)]]
+mean_per_interval = tapply(activ_monit_data$steps, 
+                           activ_monit_data$interval, 
+                           mean, 
+                           na.rm=T)
+activ_monit_data_no_na$steps[is.na(activ_monit_data_no_na$steps)] <- 
+    mean_per_interval[activ_monit_data_no_na$interval[is.na(activ_monit_data_no_na$steps)]]
 ```
 
 Total number of steps per day for new dataset:
 
 
 ```r
-steps_per_day <- tapply(activ_monit_data_no_na$steps, activ_monit_data_no_na$date, sum, na.rm = T)
+steps_per_day <- tapply(activ_monit_data_no_na$steps, 
+                        activ_monit_data_no_na$date, 
+                        sum, 
+                        na.rm = T)
 hist(steps_per_day)
 ```
 
@@ -194,22 +214,35 @@ Adding new variable in new dataset:
 
 
 ```r
-activ_monit_data_no_na$weekend <- as.factor(weekdays(as.Date(activ_monit_data_no_na$date)) %in% c("Saturday", "Sunday"))
+activ_monit_data_no_na$weekend <- 
+    as.factor(weekdays(as.Date(activ_monit_data_no_na$date)) %in% c("Saturday", "Sunday"))
 ```
 
 Calculating daily activity for weekdays and weekends and creating plots:
 
 
 ```r
-daily_activity <- with(activ_monit_data_no_na, tapply(steps, list(interval, weekend), mean, na.rm = T))
+daily_activity <- with(activ_monit_data_no_na, 
+                       tapply(steps, list(interval, weekend), mean, na.rm = T))
 daily_activity <- as.data.frame(daily_activity)
-new_daily_activity <- data.frame(interval=row.names(daily_activity), value=daily_activity[,"FALSE"], weekend="Weekday")
-new_daily_activity <- rbind(new_daily_activity, data.frame(interval=row.names(daily_activity), value=daily_activity[,"TRUE"], weekend="Weekend"))
+new_daily_activity <- data.frame(interval=row.names(daily_activity), 
+                                 value=daily_activity[,"FALSE"], 
+                                 weekend="Weekday")
+new_daily_activity <- rbind(new_daily_activity, 
+                            data.frame(interval=row.names(daily_activity), 
+                                       value=daily_activity[,"TRUE"], 
+                                       weekend="Weekend"))
 daily_activity <- new_daily_activity
 daily_activity$interval <- as.integer(as.character(daily_activity$interval))
 
 library(ggplot2)
-ggplot(daily_activity, aes(interval, value)) + facet_grid(weekend ~ .) + geom_line(aes(group=weekend)) + scale_x_discrete(breaks=c(0, 500, 1000, 1500, 2000), labels=c('0:00', '5:00', '10:00', '15:00', '20:00')) + xlab("Time") + ylab("Average number of steps") 
+ggplot(daily_activity, aes(interval, value)) + 
+    facet_grid(weekend ~ .) + 
+    geom_line(aes(group=weekend)) + 
+    scale_x_discrete(breaks=c(0, 500, 1000, 1500, 2000), 
+                     labels=c('0:00', '5:00', '10:00', '15:00', '20:00')) + 
+    xlab("Time") + 
+    ylab("Average number of steps") 
 ```
 
 ![plot of chunk unnamed-chunk-18](figure/unnamed-chunk-18.png) 
